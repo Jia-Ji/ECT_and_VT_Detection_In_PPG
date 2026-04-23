@@ -1,0 +1,34 @@
+# Finetune data splitting configuration
+# Split data by specifying number of patients and samples per patient
+
+finetune_split:
+  # Input/Output paths
+  input_path: "./PPG_data/MAD/processed_df_resampled/processed_MAD_testDataset_resampled.pkl"
+  output_dir: "./PPG_data/splitted_data_finetune/split_3/"
+  
+  # Target labels to select (after merging PAC/PVC into ECT)
+  target_labels: ['NORM', 'ECT', 'VT']
+  
+  # Label encoding mapping
+  label_mapping:
+    NORM: 0
+    ECT: 1
+    VT: 2
+  
+  # Number of patients in each split
+  # Set to -1 to use all remaining patients (for test set)
+  n_train_patients: 10
+  n_val_patients: 5
+  n_test_patients: -1  # -1 means use all remaining patients
+  
+  # Number of samples per patient for train and validation
+  # Set to -1 to use all samples from that patient
+  n_samples_per_patient_train: 100
+  n_samples_per_patient_val: 50
+  n_samples_per_patient_test: -1  # -1 means use all samples
+  
+  # Random seed for reproducibility
+  random_seed: 12
+  
+  # Whether to stratify patient selection by label distribution
+  stratify_patients: true

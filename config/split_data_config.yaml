@@ -1,0 +1,20 @@
+# Data splitting configuration
+split_data:
+  # Input/Output paths
+  input_path: "PPG_data/combined_df/cath_lab_samples.pkl"
+  output_dir: "./PPG_data/cath_lab/split_0/"
+  
+  # Target labels to select (after merging PAC/PVC into ECT)
+  target_labels: ['NORM', 'ECT', 'VT']
+  
+  # Label encoding mapping
+  label_mapping:
+    NORM: 0
+    ECT: 1
+    VT: 2
+  
+  # Split proportions (must sum to 1.0)
+  train_prop: 0.6
+  val_prop: 0.2
+  test_prop: 0.2
+

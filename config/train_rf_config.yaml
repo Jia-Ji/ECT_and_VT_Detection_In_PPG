@@ -1,0 +1,51 @@
+data:
+  base_path: "./PPG_data/splitted_data/"
+  path:
+    train:
+      hr_path: "${data.base_path}{dataset}/hr_train.npy"
+      hrv_path: "${data.base_path}{dataset}/rmssd_train.npy"
+      y_path: "${data.base_path}{dataset}/labels_train.npy"
+      bm_stats_path: "${data.base_path}{dataset}/bm_stats_train.csv"
+    valid:
+      hr_path: "${data.base_path}{dataset}/hr_val.npy"
+      hrv_path: "${data.base_path}{dataset}/rmssd_val.npy"
+      y_path: "${data.base_path}{dataset}/labels_val.npy"
+      bm_stats_path: "${data.base_path}{dataset}/bm_stats_val.csv"
+    test:
+      hr_path: "${data.base_path}{dataset}/hr_test.npy"
+      hrv_path: "${data.base_path}{dataset}/rmssd_test.npy"
+      y_path: "${data.base_path}{dataset}/labels_test.npy"
+      bm_stats_path: "${data.base_path}{dataset}/bm_stats_test.csv"
+
+# Biomarker statistics keys to use as features
+# Available keys: 'Tpi_mean', 'Tpi_std', 'Tpi_iqr', 'Tpp_mean', 'Tpp_std', 
+# 'Tpp_iqr', 'Tsys_mean', 'Tsys_std', 'Tsys_iqr', 'Tdia_mean', 'Tdia_std', 
+# 'Tdia_iqr', 'Tsp_mean', 'Tsp_std', 'Tsp_iqr', 'Asp_mean', 'Asp_std', 'Asp_iqr', 
+# 'IPR_mean', 'IPR_std', 'IPR_iqr', 'Tsys/Tdia_mean', 'Tsys/Tdia_std', 'Tsys/Tdia_iqr',
+#  'Adp/Asp_mean', 'Adp/Asp_std', 'Adp/Asp_iqr', 'Asp/deltaT_mean', 'Asp/deltaT_std', 'Asp/deltaT_iqr'
+
+biomarker_keys:
+  - Tsys/Tdia_mean
+  - Tsys/Tdia_std
+  - Tsys/Tdia_iqr
+  - Adp/Asp_mean
+  - Adp/Asp_std
+  - Adp/Asp_iqr
+  - Asp/deltaT_mean
+  - Asp/deltaT_std
+  - Asp/deltaT_iqr
+
+model:
+  n_feats_to_select: 17
+  n_estimators: 100  # Number of trees in the forest
+  max_depth: null  # Maximum depth of the tree (null for no limit)
+  min_samples_split: 2  # Minimum number of samples required to split a node
+  min_samples_leaf: 1  # Minimum number of samples required at a leaf node
+  class_weight: balanced  # Options: 'balanced', 'balanced_subsample', or null
+  random_state: 42
+  get_summary: True
+  confusion_matrix: True
+  classification_report: True
+  aus_score: True
+  plot_roc: True
+
