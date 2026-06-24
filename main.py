@@ -1,27 +1,36 @@
 """
-Main entry point for the PPG Ectopics Classification Pipeline.
+Main entry point for the PPG ectopic and VT detection pipelines.
 
-This module provides nine main pipelines:
-1. build_dataset - Build dataset with biomarkers extraction
-2. preprocess_signals - Preprocess PPG/ECG signals
-3. split_data - Split data into train/val/test sets
-4. domain_normalize - Normalize PPG data by domain (Cathlab vs Theatre)
-5. train_model - Train the classification model
-6. evaluate - Evaluate a trained model on test data
-7. train_regression - Train the regression model
-8. train_svm - Train the SVM model
-9. train_random_forest - Train the Random Forest model
+This module provides the following pipelines (CLI names shown):
+- build_dataset           : Build dataset with biomarker extraction
+- preprocess             : Preprocess PPG signals
+- split                  : Split data into train/validation/test sets
+- domain_normalize       : Normalize PPG data by domain (Cathlab vs Theatre)
+- segment_normalize      : Per-segment (z-score) normalization
+- global_normalize       : Global normalization using training statistics
+- train                  : Train the classification model
+- finetune               : Finetune a pretrained model on new data
+- evaluate               : Evaluate a trained model on test data
+- train_regression       : Train regression (biomarker-based) model
+- train_svm              : Train SVM on biomarker features
+- train_random_forest    : Train Random Forest on biomarker features
 
 Usage:
-    python main.py build_dataset    # Run dataset building pipeline
-    python main.py preprocess       # Run preprocessing pipeline
-    python main.py split            # Run data splitting pipeline
-    python main.py domain_normalize # Run domain normalization pipeline
-    python main.py train            # Run training pipeline
-    python main.py evaluate         # Run evaluation pipeline
-    python main.py train_regression # Run regression training pipeline
-    python main.py train_svm        # Run SVM training pipeline
-    python main.py train_random_forest # Run Random Forest training pipeline
+    python main.py <pipeline_name>
+
+Examples:
+    python main.py build_dataset
+    python main.py preprocess
+    python main.py split
+    python main.py domain_normalize
+    python main.py segment_normalize
+    python main.py global_normalize
+    python main.py train
+    python main.py finetune
+    python main.py evaluate
+    python main.py train_regression
+    python main.py train_svm
+    python main.py train_rf
 """
 
 import hydra
@@ -773,18 +782,14 @@ def train_random_forest_pipeline(cfg: DictConfig) -> None:
 
 def main():
     """
-    Main entry point that routes to the appropriate pipeline.
-    
-    Usage:
-        python main.py build_dataset    # Run dataset building pipeline
-        python main.py preprocess       # Run preprocessing pipeline
-        python main.py split            # Run data splitting pipeline
-        python main.py domain_normalize # Run domain normalization pipeline
-        python main.py train            # Run training pipeline
-        python main.py evaluate         # Run evaluation pipeline
-        python main.py train_regression # Run regression training pipeline
-        python main.py train_svm        # Run SVM training pipeline
-        python main.py train_random_forest # Run Random Forest training pipeline
+    Main CLI entry point that routes to the requested pipeline.
+
+    Call with: python main.py <pipeline_name>
+
+    Available pipelines include (examples):
+    build_dataset, preprocess, split, domain_normalize,
+    segment_normalize, global_normalize, train, finetune,
+    evaluate, train_regression, train_svm, train_random_forest
     """
     if len(sys.argv) < 2:
         print("Please specify a pipeline to run.")
@@ -808,52 +813,36 @@ def main():
     
     # Map command line argument to config and function
     pipeline_configs = {
-        "build_dataset": ("extract_biomarkers_config", build_dataset_pipeline),
         "build": ("extract_biomarkers_config", build_dataset_pipeline),
         "extract": ("extract_biomarkers_config", build_dataset_pipeline),
         "preprocess": ("preprocess_config", preprocess_signals_pipeline),
-        "preprocess_signals": ("preprocess_config", preprocess_signals_pipeline),
         "split": ("split_data_config", split_data_pipeline),
-        "split_data": ("split_data_config", split_data_pipeline),
         "domain_normalize": ("domain_normalize_config", domain_normalize_pipeline),
-        "domain_norm": ("domain_normalize_config", domain_normalize_pipeline),
-        "normalize": ("domain_normalize_config", domain_normalize_pipeline),
         "segment_normalize": ("domain_normalize_config", segment_normalize_pipeline),
-        "segment_norm": ("domain_normalize_config", segment_normalize_pipeline),
         "global_normalize": ("domain_normalize_config", global_normalize_pipeline),
-        "global_norm": ("domain_normalize_config", global_normalize_pipeline),
         "train": ("train", train_model_pipeline),
-        "train_model": ("train", train_model_pipeline),
         "finetune": ("finetune", finetune_model_pipeline),
-        "fine_tune": ("finetune", finetune_model_pipeline),
-        "ft": ("finetune", finetune_model_pipeline),
         "evaluate": ("evaluate", evaluate_model_pipeline),
-        "eval": ("evaluate", evaluate_model_pipeline),
-        "test": ("evaluate", evaluate_model_pipeline),
         "train_regression": ("train_reg_config", train_regression_pipeline),
-        "regression": ("train_reg_config", train_regression_pipeline),
         "train_svm": ("train_svm_config", train_svm_pipeline),
-        "svm": ("train_svm_config", train_svm_pipeline),
-        "train_random_forest": ("train_rf_config", train_random_forest_pipeline),
-        "random_forest": ("train_rf_config", train_random_forest_pipeline),
-        "rf": ("train_rf_config", train_random_forest_pipeline),
+        "train_rf": ("train_rf_config", train_random_forest_pipeline),
     }
     
     if pipeline_arg not in pipeline_configs:
         print(f"Unknown pipeline: {pipeline_arg}")
         print("\nAvailable pipelines:")
-        print("  - build_dataset / build    : Build dataset with biomarkers")
+        print("  - build    : Build dataset with biomarkers")
         print("  - preprocess               : Preprocess signals")
         print("  - split                    : Split data into train/val/test")
         print("  - domain_normalize         : Normalize PPG by domain (Cathlab vs Theatre)")
         print("  - segment_normalize        : Normalize each PPG segment by itself (z-score)")
         print("  - global_normalize         : Normalize using global mean/std from training set")
         print("  - train                    : Train the classification model")
-        print("  - finetune / ft            : Finetune a pretrained model on new dataset")
-        print("  - evaluate / eval / test   : Evaluate a trained model on test data")
+        print("  - finetune                 : Finetune a pretrained model on new dataset")
+        print("  - evaluate                 : Evaluate a trained model on test data")
         print("  - train_regression         : Train the regression model")
         print("  - train_svm                : Train the SVM model")
-        print("  - train_random_forest      : Train the Random Forest model")
+        print("  - train_rf                 : Train the Random Forest model")
         sys.exit(1)
     
     config_name, pipeline_func = pipeline_configs[pipeline_arg]
